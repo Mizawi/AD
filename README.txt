@@ -1,12 +1,12 @@
 # Projeto-AD
 
-# Projeto realizado por Miguel Almeida 48314, Tiago Gon�alves 48299 e Henrique Peralta 48292
+# Projeto realizado por Miguel Almeida 48314, Tiago Goncalves 48299 e Henrique Peralta 48292
 
-Comando necessario para a execu��o do servidor (permanece ligado):
+Comando necessario para a execucao do servidor (permanece ligado):
 	
-	> python lock_server <PORTO_ID> <N�Recursos> <N� Maximo de Utilizadores no mesmo recurso> <Tempo Limite>
+	> python lock_server <PORTO_ID> <N Recursos> <N  Maximo de Utilizadores no mesmo recurso> <Tempo Limite>
 
-Comando Necessario para a execu��o de um pedido do cliente (Desliga-se ap�s envio do pedido e recep��o da resposta):
+Comando Necessario para a execucao de um pedido do cliente (Desliga-se apos envio do pedido e recepcao da resposta):
 	
 	> python lock_client <IP> <PORTO_ID> <ID_Client
 
