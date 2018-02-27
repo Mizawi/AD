@@ -4,11 +4,11 @@
 
 Comando necessario para a execucao do servidor (permanece ligado):
 	
-	> python lock_server <PORTO_ID> <N Recursos> <N  Maximo de Utilizadores no mesmo recurso> <Tempo Limite>
+	> python lock_server.py <PORTO_ID> <N Recursos> <N  Maximo de Utilizadores no mesmo recurso> <Tempo Limite>
 
 Comando Necessario para a execucao de um pedido do cliente (Desliga-se apos envio do pedido e recepcao da resposta):
 	
-	> python lock_client <IP> <PORTO_ID> <ID_Client
+	> python lock_client.py <IP> <PORTO_ID> <ID_Client>
 
 Todos os comandos funcionam:
 	Lock <Resource_ID>

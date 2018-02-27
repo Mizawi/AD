@@ -32,9 +32,9 @@ class resource_lock:
 
     def lock(self, client_id, time_limit):
         """
-        Bloqueia o recurso se este não estiver bloqueado ou mantém o bloqueio
-        se o recurso estiver bloqueado pelo cliente client_id. Neste caso renova
-        o bloqueio do recurso até time_limit.
+        Bloqueia o recurso se este não estiver bloqueado ou inativo, ou mantém o
+        Bloqueio se o recurso estiver bloqueado pelo cliente client_id. Neste caso
+        Renova o bloqueio do recurso até time_limit.
         Retorna True se bloqueou o recurso ou False caso contrário.
         """
         if len(self.BlockClients) < self.maxclients:
@@ -80,13 +80,14 @@ class resource_lock:
 
     def test(self):
         """
-        Retorna o estado de bloqueio do recurso.
+        Retorna o estado de bloqueio do recurso ou inativo, caso o recurso se
+        encontre inativo.
         """
         return self.block
 
     def stat(self):
         """
-        Retorna o número de vezes que este recurso já foi bloqueado.
+        Retorna o número de vezes que este recurso já foi bloqueado em k.
         """
         return self.nBlock
 
@@ -96,15 +97,27 @@ class resource_lock:
         """
         return len(self.BlockClients)
 
+    def disable(self):
+        """
+        Coloca o recurso inativo/indisponível incondicionalmente, alterando os
+        valores associados à sua disponibilidade.
+        """
+
+    pass  # Remover esta linha e fazer implementação da função
+
 
 ###############################################################################
 
 class lock_pool:
-    def __init__(self, N, K):
+    def __init__(self, N, K, T):
         """
         Define um array com um conjunto de locks para N recursos. Os locks podem
         ser manipulados pelos métodos desta classe.
-        Define também K, o valor máximo do número de bloqueios simultâneos a um recurso qualquer.
+        Define K, o número máximo de bloqueios permitidos para cada recurso. Ao
+        atingir K, o recurso fica indisponível/inativo.
+        Define Y, o número máximo permitido de recursos bloqueados num dado
+        momento. Ao atingir Y, não é possível realizar mais bloqueios até que um
+        recurso seja libertado.
         """
 
         self.ArrayLock = []
@@ -126,12 +139,14 @@ class lock_pool:
 
     def lock(self, resource_id, client_id, time_limit):
         """
-        Tenta bloquear o recurso resource_id pelo cliente client_id, até ao
-        instante time_limit.
-        O bloqueio do recurso só é possível se K ainda não foi excedido para este
-        recurso. É aconselhável implementar um método _try_lock para vericar estas condições. 
-        Retorna True em caso de sucesso e False caso contrário.
-        """
+         Tenta bloquear o recurso resource_id pelo cliente client_id, até ao
+         instante time_limit.
+         O bloqueio do recurso só é possível se o recurso estiver ativo, não
+         bloqueado ou bloqueado para o próprio requerente, e Y ainda não foi
+         excedido. É aconselhável implementar um método __try_lock__ para
+         verificar estas condições.
+         Retorna True em caso de sucesso e False caso contrário.
+         """
         start_time = time.time()
         while (start_time - time.time()) < time_limit:
             s.acquire()
@@ -164,19 +179,25 @@ class lock_pool:
 
     def stat(self, resource_id):
         """
-        Retorna o número de vezes que o recurso resource_id já foi bloqueado.
-        """
+         Retorna o número de vezes que o recurso resource_id já foi bloqueado, dos
+         K bloqueios permitidos.
+         """
         for resource in self.ArrayLock:
             if resource[0] == resource_id:
                 return resource[1].stat()
 
-    def stat_k(self, resource_id):
+    def stat_y(self):
         """
-        Retorna o número de bloqueios simultâneos no recurso resource_id.
+        Retorna o número de recursos bloqueados num dado momento do Y permitidos.
         """
-        for resource in self.ArrayLock:
-            if resource[0] == resource_id:
-                return resource[1].stat_k()
+        pass  # Remover esta linha e fazer implementação da função
+
+    def stat_n(self):
+        """
+        Retorna o número de recursos disponíneis em N.
+        """
+
+    pass  # Remover esta linha e fazer implementação da função
 
     def __repr__(self):
         """
@@ -223,7 +244,7 @@ print "Nº Resources: ", argv[2]
 print "Nº Maximo de Utilizadores num Recurso: ", argv[3]
 print "Tempo Limite:", argv[4], "\n"
 
-lock_pool = lock_pool(int(argv[2]), int(argv[3]))
+lock_pool = lock_pool(int(argv[2]), int(argv[3]), int(argv[4]))
 
 start_time = time.time()
 
