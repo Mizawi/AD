@@ -18,4 +18,4 @@ Todos os comandos funcionam:
 	Stats_Y
 	Stats_N
 
-Cada vez que � enviado um pedido ao servidor, o servidor imprime o estado dos recursos.
+Cada vez que e enviado um pedido ao servidor, o servidor imprime o estado dos recursos.
