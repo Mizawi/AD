@@ -116,7 +116,7 @@ class lock_pool:
         de concessão do bloqueio. Liberta os recursos caso o seu tempo de
         concessão tenha expirado.
         """
-        for resource in lock_array:
+        for resource in self.lock_array:
             if resource[1].time >= self.T:
                 resource[1].urelease()
 
@@ -130,13 +130,15 @@ class lock_pool:
         verificar estas condições.
         Retorna True em caso de sucesso e False caso contrário.
         """
-        if resource_id.test() == True:
-            return False
-        else:
-            if resource_id.nBlock <= self.Y:
-                resource_id.lock(client_id, time_limit)
-                self.locks += 1
-                return True
+        for resource in self.lock_array:
+
+            if resource[1].test() == True:
+                return False
+            else:
+                if resource_id.nBlock <= self.Y:
+                    resource_id.lock(client_id, time_limit)
+                    self.locks += 1
+                    return True
 
     def release(self, resource_id, client_id):
         """
@@ -194,6 +196,24 @@ class lock_pool:
         passada à função print.
         """
         output = ""
+
+        for resource in self.ArrayLock:
+            if resource[1].test():
+                clients = " "
+                for client in resource[1].BlockClients:
+                    clients += "" + str(client) + ","
+                print resource[1].time
+                output += ("Recurso ID: " + str(
+                    resource[0]) + " bloqueado pelo(s) o cliente(s):" + clients + " até aos " + str(
+                    resource[1].time_limit) + " Segundos, Tempo passado: " + str(
+                    time.time() - resource[1].time) + " Segundos\n")
+
+            else:
+                if resource[0] == 0:
+                    output += "\nRecurso ID: " + str(resource[0]) + " desbloqueado  \n"
+                else:
+                    output += "Recurso ID: " + str(resource[0]) + " desbloqueado  \n"
+
         #
         # Acrescentar na output uma linha por cada recurso bloqueado, da forma:
         # recurso <número do recurso> bloqueado pelo cliente <id do cliente> até
