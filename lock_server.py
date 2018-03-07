@@ -103,7 +103,7 @@ class lock_pool:
         """
         lock_array = []
 
-        for i in range(N):
+        for i in range(1,N):
             lock_array.append([i, resource_lock()])
         self.K = K
         self.Y = Y
@@ -116,7 +116,7 @@ class lock_pool:
         de concessão do bloqueio. Liberta os recursos caso o seu tempo de
         concessão tenha expirado.
         """
-        for resource in lock_array:
+        for resource in self.lock_array:
             if resource[1].time >= self.T:
                 resource[1].urelease()
 
@@ -130,13 +130,29 @@ class lock_pool:
         verificar estas condições.
         Retorna True em caso de sucesso e False caso contrário.
         """
-        if resource_id.test() == True:
-            return False
-        else:
-            if resource_id.nBlock <= self.Y:
-                resource_id.lock(client_id, time_limit)
-                self.locks += 1
-                return True
+        for resource in self.lock_array:
+            
+            if resource[0] == resource_id:
+                if resource[1].test() == True:
+                    return False
+
+                else:
+                    if resource[1].nBlock <= self.Y:
+                        if resource[1].client == client_id
+                            for resource in self.lock_array:
+                                if resource[1].client == client_id
+                                    if resource[0] != resource_id:
+                                        return False
+                            resource_id.lock(client_id, time_limit)
+                            self.locks += 1
+                            return True
+                        else:
+                            return False
+                    
+                    else:
+                        return False
+        return False
+
 
     def release(self, resource_id, client_id):
         """
