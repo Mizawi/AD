@@ -12,7 +12,6 @@ import socket as s
 import sock_utils as su
 import sys, os
 import pickle, struct
-import time
 
 
 ###############################################################################
@@ -53,7 +52,6 @@ class resource_lock:
         self.time = 0
         self.time_limit = 0
 
-
     def release(self, client_id):
         """
         Liberta o recurso se este foi bloqueado pelo cliente client_id,
@@ -65,14 +63,13 @@ class resource_lock:
             self.time = 0
             self.time_limit = 0
 
-
     def test(self):
         """
-        Retorna o estado de bloqueio do recurso ou inativo, caso o recurso se 
+        Retorna o estado de bloqueio do recurso ou inativo, caso o recurso se
         encontre inativo.
         """
         return self.block
-    
+
     def stat(self):
         """
         Retorna o número de vezes que este recurso já foi bloqueado em k.
@@ -81,14 +78,14 @@ class resource_lock:
 
     def disable(self):
         """
-        Coloca o recurso inativo/indisponível incondicionalmente, alterando os 
+        Coloca o recurso inativo/indisponível incondicionalmente, alterando os
         valores associados à sua disponibilidade.
         """
         self.block = "Unavailable"
         self.client = "NONE"
         self.time = 0
 
-        
+
 ###############################################################################
 
 class lock_pool:
@@ -96,18 +93,21 @@ class lock_pool:
         """
         Define um array com um conjunto de locks para N recursos. Os locks podem
         ser manipulados pelos métodos desta classe.
-        Define K, o número máximo de bloqueios permitidos para cada recurso. Ao 
+        Define K, o número máximo de bloqueios permitidos para cada recurso. Ao
         atingir K, o recurso fica indisponível/inativo.
-        Define Y, o número máximo permitido de recursos bloqueados num dado 
-        momento. Ao atingir Y, não é possível realizar mais bloqueios até que um 
+        Define Y, o número máximo permitido de recursos bloqueados num dado
+        momento. Ao atingir Y, não é possível realizar mais bloqueios até que um
         recurso seja libertado.
 		Define T, o tempo máximo de concessão de bloqueio.
         """
-        
-        self.N = N
+        lock_array = []
+
+        for i in range(N):
+            lock_array.append([i, resource_lock()])
         self.K = K
         self.Y = Y
         self.T = T
+        self.locks = 0
 
     def clear_expired_locks(self):
         """
@@ -115,53 +115,74 @@ class lock_pool:
         de concessão do bloqueio. Liberta os recursos caso o seu tempo de
         concessão tenha expirado.
         """
-        pass # Remover esta linha e fazer implementação da função
 
     def lock(self, resource_id, client_id, time_limit):
         """
         Tenta bloquear o recurso resource_id pelo cliente client_id, até ao
         instante time_limit.
-        O bloqueio do recurso só é possível se o recurso estiver ativo, não 
-        bloqueado ou bloqueado para o próprio requerente, e Y ainda não foi 
+        O bloqueio do recurso só é possível se o recurso estiver ativo, não
+        bloqueado ou bloqueado para o próprio requerente, e Y ainda não foi
         excedido. É aconselhável implementar um método __try_lock__ para
         verificar estas condições.
         Retorna True em caso de sucesso e False caso contrário.
         """
-        pass # Remover esta linha e fazer implementação da função
+        if resource_id.test() == True:
+            return False
+        else:
+            if resource_id.nBlock <= self.Y:
+                resource_id.lock(client_id, time_limit)
+                self.locks += 1
+                return True
 
     def release(self, resource_id, client_id):
         """
         Liberta o bloqueio sobre o recurso resource_id pelo cliente client_id.
         True em caso de sucesso e False caso contrário.
         """
-        pass # Remover esta linha e fazer implementação da função
 
-    def test(self,resource_id):
-        """
-        Retorna True se o recurso resource_id estiver bloqueado e False caso 
-        esteja bloqueado ou inativo.
-        """
-        pass # Remover esta linha e fazer implementação da função
+        for resource in self.lock_array:
+            if resource[0] == resource_id:
+                return resource[1].release(client_id)
 
-    def stat(self,resource_id):
+    def test(self, resource_id):
         """
-        Retorna o número de vezes que o recurso resource_id já foi bloqueado, dos 
+        Retorna True se o recurso resource_id estiver bloqueado False caso
+        esteja desbloqueado ou inativo.
+        """
+        for resource in self.lock_array:
+            if resource[0] == resource_id:
+                if resource[1].test() == "Unavailable":
+                    return False
+                else:
+                    return resource[1].test()
+
+    def stat(self, resource_id):
+        """
+        Retorna o número de vezes que o recurso resource_id já foi bloqueado, dos
         K bloqueios permitidos.
         """
-        pass # Remover esta linha e fazer implementação da função
+        for resource in self.lock_array:
+            if resource[0] == resource_id:
+                return resource[1].stat()
 
     def stat_y(self):
         """
         Retorna o número de recursos bloqueados num dado momento do Y permitidos.
         """
-        pass # Remover esta linha e fazer implementação da função
+        return self.locks
 
     def stat_n(self):
         """
-        Retorna o número de recursos disponíneis em N.
+        Retorna o número de recursos disponíveis em N.
         """
-        pass # Remover esta linha e fazer implementação da função
-		
+        n_available = 0
+
+        for resource in self.lock_array:
+            if resource[1].test() == False:
+                n_available += 1
+
+        return n_available
+
     def __repr__(self):
         """
         Representação da classe para a saída standard. A string devolvida por
@@ -181,6 +202,7 @@ class lock_pool:
         #
         return output
 
+
 ###############################################################################
 
 # código do programa principal
@@ -193,7 +215,7 @@ i = 0
 listener_socket = su.create_tcp_server_socket(HOST, PORT, queue_size)
 
 global i
-    
+
 while True:
 
     sock = sock_utils.create_tcp_server_socket('', int(argv[1]), 10)
