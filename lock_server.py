@@ -262,7 +262,7 @@ while True:
             conn_sock.sendall(str(lock_pool.stat_n()))
 
         else:
-            conn_sock.sendall("UNKNOWN COMMAND")
+            conn_sock.sendall("UNKNOWN COMMAlND")
             conn_sock.close()
 
 listener_socket.close()
