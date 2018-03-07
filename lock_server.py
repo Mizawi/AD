@@ -12,7 +12,6 @@ import socket as s
 import sock_utils as su
 import sys, os
 import pickle, struct
-import time
 
 
 ###############################################################################
@@ -22,12 +21,7 @@ class resource_lock:
         """
         Define e inicializa as características de um LOCK num recurso.
         """
-        self.id =
-        self.block = False
-        self.nBlock = 0
-        self.client = "NONE"
-        self.time_limit = 0
-        self.time = 0
+        pass # Remover esta linha e fazer implementação da função
 
     def lock(self, client_id, time_limit):
         """
@@ -36,57 +30,41 @@ class resource_lock:
         o bloqueio do recurso até time_limit.
         Retorna True se bloqueou o recurso ou False caso contrário.
         """
-
-        if self.block != True or self.block != "Unavailable":
-            self.block = True
-            self.client = client_id
-            self.time = time.time()
-            self.time_limit = time_limit
+        pass # Remover esta linha e fazer implementação da função
 
     def urelease(self):
         """
         Liberta o recurso incondicionalmente, alterando os valores associados
         ao bloqueio.
         """
-        self.block = False
-        self.client = "NONE"
-        self.time = 0
-        self.time_limit = 0
-
+        pass # Remover esta linha e fazer implementação da função
 
     def release(self, client_id):
         """
         Liberta o recurso se este foi bloqueado pelo cliente client_id,
         retornando True nesse caso. Caso contrário retorna False.
         """
-        if self.client == client_id:
-            self.block = False
-            self.client = "NONE"
-            self.time = 0
-            self.time_limit = 0
-
+        pass # Remover esta linha e fazer implementação da função
 
     def test(self):
         """
         Retorna o estado de bloqueio do recurso ou inativo, caso o recurso se 
         encontre inativo.
         """
-        return self.block
+        pass # Remover esta linha e fazer implementação da função
     
     def stat(self):
         """
         Retorna o número de vezes que este recurso já foi bloqueado em k.
         """
-        return self.nBlock
+        pass # Remover esta linha e fazer implementação da função
 
     def disable(self):
         """
         Coloca o recurso inativo/indisponível incondicionalmente, alterando os 
         valores associados à sua disponibilidade.
         """
-        self.block = "Unavailable"
-        self.client = "NONE"
-        self.time = 0
+        pass # Remover esta linha e fazer implementação da função
 
         
 ###############################################################################
@@ -155,7 +133,10 @@ class lock_pool:
         """
         for resource in self.lock_array:
             if resource[0] == resource_id:
-                return resource[1].test()
+                if resource[1].test() == "Unavailable":
+                    return False
+                else:
+                    return resource[1].test()
 
     def stat(self,resource_id):
         """
@@ -180,7 +161,10 @@ class lock_pool:
         n_available = 0
 
         for resource in self.lock_array:
-            if resource[1].test() == 
+            if resource[1].test() == False:
+                n_available += 1
+        
+        return n_available
 
 		
     def __repr__(self):
@@ -213,77 +197,58 @@ PORT = sys.argv[2]
 i = 0
 listener_socket = su.create_tcp_server_socket(HOST, PORT, queue_size)
 
-global i
+
+
+    a = True
+    global i
     
-while True:
+    while a:
 
-    sock = sock_utils.create_tcp_server_socket('', int(argv[1]), 10)
+        conn_sock, addr = listener_socket.accept()
 
-    print "Nº Resources: ", argv[2]
-    print "Nº Maximo de Utilizadores num Recurso: ", argv[3]
-    print "Tempo Limite:", argv[4], "\n"
+        print 'New Connection --> ', addr
+       
+        size_bytes = su.receive_all(conn_sock, 4)
+        size = struct.unpack('!i', size_bytes)[0]
 
-    lock_pool = lock_pool(int(argv[2]), int(argv[3]))
+        msg_bytes = su.recieve_all(conn_sock, size)
+        dados_recebidos = pickle.loads(msg_bytes)
 
-    start_time = time.time()
+        if 'get' in dados_recebidos:
+            
+            try:
+                values = list(msg_dic.values())
+                out = values[int(dados_recebidos[1])]
+                conn_sock.send(str(out))
+                print "GET command executed"
 
-    while True:
+            except(ValueError):
+                pass 
 
-        print "Now Listening...\n"
+        elif 'list' in dados_recebidos:
+            
+            try:
+                out = ""
+                for value in msg_dic.values():
+                    string = value[0]
+                    out += string + ", "
+            
+                conn_sock.send(out)
+                print "LIST command executed"
 
-        print lock_pool.__repr__
+            except(ValueError):
+                pass
 
-        (conn_sock, addr) = sock.accept()
-
-        print "Connected to: ", addr, "\n"
-
-        data = su.receive_all(conn_sock, 1024)
-        msg = data.split()
-
-        lock_pool.clear_expired_locks()
-
-        # Verifica se esse recurso existe
-        if int(msg[1]) > (int(argv[2]) - 1):
-            conn_sock.sendall("UNKNOWN RESOURCE")
-        # Commando Lock
-        elif "Lock" in msg:
-            Estado = lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[4]))
-            if Estado == True:
-                print "Resource: ", msg[1], "Locked"
-                conn_sock.sendall("OK")
-                conn_sock.close()
-            else:
-                conn_sock.sendall("NOK")
-                conn_sock.close()
-        # Comando Release
-        elif "Release" in msg:
-            Estado = lock_pool.release(int(msg[1]), int(msg[2]))
-            if Estado == True:
-                print "Resource: ", msg[1], "Released"
-                conn_sock.sendall("OK")
-                conn_sock.close()
-            else:
-                conn_sock.sendall("NOK")
-                conn_sock.close()
-        # Comando Test
-        elif "Test" in msg:
-            Estado = lock_pool.test(int(msg[1]))
-            if Estado == True:
-                conn_sock.sendall("LOCKED")
-            else:
-                conn_sock.sendall("NOT LOCKED")
-        # Comando Stats
-        elif "Stats" in msg:
-            conn_sock.sendall(str(lock_pool.stat(int(msg[1]))))
-        # Comando Stats_y
-        elif "Stats y" in msg:
-            conn_sock.sendall(str(lock_pool.stat_y()))
-        # Comando Stats_n
-        elif "Stats n" in msg:
-            conn_sock.sendall(str(lock_pool.stat_n()))
-
+        elif 'exit' in  dados_recebidos:
+            
+            print "EXIT command executed"
+            print "Client disconnected"
+        
+       
+        
         else:
-            conn_sock.sendall("UNKNOWN COMMAND")
-            conn_sock.close()
+            
+            conn_sock.send("Invalid operation, please use 'GET', 'LIST', 'ADD' or 'REMOVE'.")    
+            
 
-listener_socket.close()
+    listener_socket.close()
