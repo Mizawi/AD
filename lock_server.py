@@ -1,130 +1,91 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
 """
-Aplicações distribuídas - Projeto 1 - lock_client.py
-Grupo: 09
-Números de aluno: 48314 | 48299 | 48292
+Aplicações distribuídas - Projeto 1 - lock_server.py
+Grupo:
+Números de aluno:
 """
 
 # Zona para fazer importação
 
-import time
-import sock_utils
-from sys import argv
-from multiprocessing import Semaphore
+import socket as s
+import sock_utils as su
+import sys, os
+import pickle, struct
 
-###############################################################################
-s = Semaphore(1)
+
 ###############################################################################
 
 class resource_lock:
-    def __init__(self, K):
+    def __init__(self):
         """
         Define e inicializa as características de um LOCK num recurso.
         """
-        self.block = False
-        self.nBlock = 0
-        self.BlockClients = []
-        self.time_limit = 0
-        self.time = 0
-        self.maxclients = K
+        pass # Remover esta linha e fazer implementação da função
 
     def lock(self, client_id, time_limit):
         """
-        Bloqueia o recurso se este não estiver bloqueado ou inativo, ou mantém o
-        Bloqueio se o recurso estiver bloqueado pelo cliente client_id. Neste caso
-        Renova o bloqueio do recurso até time_limit.
+        Bloqueia o recurso se este não estiver bloqueado ou inativo, ou mantém o bloqueio
+        se o recurso estiver bloqueado pelo cliente client_id. Neste caso renova
+        o bloqueio do recurso até time_limit.
         Retorna True se bloqueou o recurso ou False caso contrário.
         """
-        if len(self.BlockClients) < self.maxclients:
-
-            self.block = True
-            self.nBlock += 1
-            if client_id not in self.BlockClients:
-                self.BlockClients.append(client_id)
-            self.time = time.time()
-            self.time_limit = time_limit
-
-            return True
-
-        else:
-
-            return False
+        pass # Remover esta linha e fazer implementação da função
 
     def urelease(self):
         """
         Liberta o recurso incondicionalmente, alterando os valores associados
         ao bloqueio.
         """
-        self.block = False
-        self.BlockClients = []
-        self.time_limit = 0
+        pass # Remover esta linha e fazer implementação da função
 
     def release(self, client_id):
         """
         Liberta o recurso se este foi bloqueado pelo cliente client_id,
         retornando True nesse caso. Caso contrário retorna False.
         """
-        if client_id in self.BlockClients:
-            if len(self.BlockClients) > 1:
-                self.BlockClients.remove(client_id)
-            elif len(self.BlockClients) == 1:
-                self.block = False
-                self.BlockClients = []
-            return True
-
-        else:
-
-            return False
+        pass # Remover esta linha e fazer implementação da função
 
     def test(self):
         """
-        Retorna o estado de bloqueio do recurso ou inativo, caso o recurso se
+        Retorna o estado de bloqueio do recurso ou inativo, caso o recurso se 
         encontre inativo.
         """
-        return self.block
-
+        pass # Remover esta linha e fazer implementação da função
+    
     def stat(self):
         """
         Retorna o número de vezes que este recurso já foi bloqueado em k.
         """
-        return self.nBlock
-
-    def stat_k(self):
-        """
-        Retorna o número de bloqueios em simultâneo em K.
-        """
-        return len(self.BlockClients)
+        pass # Remover esta linha e fazer implementação da função
 
     def disable(self):
         """
-        Coloca o recurso inativo/indisponível incondicionalmente, alterando os
+        Coloca o recurso inativo/indisponível incondicionalmente, alterando os 
         valores associados à sua disponibilidade.
         """
+        pass # Remover esta linha e fazer implementação da função
 
-    pass  # Remover esta linha e fazer implementação da função
-
-
+        
 ###############################################################################
 
 class lock_pool:
-    def __init__(self, N, K, T):
+    def __init__(self, N, K, Y, T):
         """
         Define um array com um conjunto de locks para N recursos. Os locks podem
         ser manipulados pelos métodos desta classe.
-        Define K, o número máximo de bloqueios permitidos para cada recurso. Ao
+        Define K, o número máximo de bloqueios permitidos para cada recurso. Ao 
         atingir K, o recurso fica indisponível/inativo.
-        Define Y, o número máximo permitido de recursos bloqueados num dado
-        momento. Ao atingir Y, não é possível realizar mais bloqueios até que um
+        Define Y, o número máximo permitido de recursos bloqueados num dado 
+        momento. Ao atingir Y, não é possível realizar mais bloqueios até que um 
         recurso seja libertado.
+		Define T, o tempo máximo de concessão de bloqueio.
         """
-
-        self.ArrayLock = []
-
-        for i in range(N):
-            self.ArrayLock.append([i, resource_lock(K)])
+        
+        self.N = N
         self.K = K
+        self.Y = Y
+        self.T = T
 
     def clear_expired_locks(self):
         """
@@ -132,73 +93,53 @@ class lock_pool:
         de concessão do bloqueio. Liberta os recursos caso o seu tempo de
         concessão tenha expirado.
         """
-        for resource in self.ArrayLock:
-
-            if time.time() - resource[1].time > resource[1].time_limit:
-                resource[1].urelease()
+        pass # Remover esta linha e fazer implementação da função
 
     def lock(self, resource_id, client_id, time_limit):
         """
-         Tenta bloquear o recurso resource_id pelo cliente client_id, até ao
-         instante time_limit.
-         O bloqueio do recurso só é possível se o recurso estiver ativo, não
-         bloqueado ou bloqueado para o próprio requerente, e Y ainda não foi
-         excedido. É aconselhável implementar um método __try_lock__ para
-         verificar estas condições.
-         Retorna True em caso de sucesso e False caso contrário.
-         """
-        start_time = time.time()
-        while (start_time - time.time()) < time_limit:
-            s.acquire()
-            for resource in self.ArrayLock:
-                if resource_id == resource[0]:
-                    if resource[1].stat_k() < self.K:
-                        s.release()
-                        return resource[1].lock(int(client_id), time_limit)
-
-            s.release()
-        return False
+        Tenta bloquear o recurso resource_id pelo cliente client_id, até ao
+        instante time_limit.
+        O bloqueio do recurso só é possível se o recurso estiver ativo, não 
+        bloqueado ou bloqueado para o próprio requerente, e Y ainda não foi 
+        excedido. É aconselhável implementar um método __try_lock__ para
+        verificar estas condições.
+        Retorna True em caso de sucesso e False caso contrário.
+        """
+        pass # Remover esta linha e fazer implementação da função
 
     def release(self, resource_id, client_id):
         """
         Liberta o bloqueio sobre o recurso resource_id pelo cliente client_id.
         True em caso de sucesso e False caso contrário.
         """
-        for resource in self.ArrayLock:
-            if resource[0] == resource_id:
-                return resource[1].release(int(client_id))
+        pass # Remover esta linha e fazer implementação da função
 
-    def test(self, resource_id):
+    def test(self,resource_id):
         """
-        Retorna True se o recurso resource_id estiver bloqueado e False caso
-        contrário.
+        Retorna True se o recurso resource_id estiver bloqueado e False caso 
+        esteja bloqueado ou inativo.
         """
-        for resource in self.ArrayLock:
-            if resource[0] == resource_id:
-                return resource[1].test()
+        pass # Remover esta linha e fazer implementação da função
 
-    def stat(self, resource_id):
+    def stat(self,resource_id):
         """
-         Retorna o número de vezes que o recurso resource_id já foi bloqueado, dos
-         K bloqueios permitidos.
-         """
-        for resource in self.ArrayLock:
-            if resource[0] == resource_id:
-                return resource[1].stat()
+        Retorna o número de vezes que o recurso resource_id já foi bloqueado, dos 
+        K bloqueios permitidos.
+        """
+        pass # Remover esta linha e fazer implementação da função
 
     def stat_y(self):
         """
         Retorna o número de recursos bloqueados num dado momento do Y permitidos.
         """
-        pass  # Remover esta linha e fazer implementação da função
+        pass # Remover esta linha e fazer implementação da função
 
     def stat_n(self):
         """
         Retorna o número de recursos disponíneis em N.
         """
-
-    pass  # Remover esta linha e fazer implementação da função
-
+        pass # Remover esta linha e fazer implementação da função
+		
     def __repr__(self):
         """
         Representação da classe para a saída standard. A string devolvida por
@@ -206,102 +147,81 @@ class lock_pool:
         passada à função print.
         """
         output = ""
-
-        for resource in self.ArrayLock:
-            if resource[1].test():
-                clients = " "
-                for client in resource[1].BlockClients:
-                    clients += "" + str(client) + ","
-                print resource[1].time
-                output += "Recurso ID: " + str(resource[0]) + " bloqueado pelo(s) o cliente(s):" + clients + " até aos " + str(resource[1].time_limit) + " Segundos, Tempo passado: " + str(time.time() - resource[1].time) + " Segundos\n"
-
-            else:
-                if resource[0] == 0:
-                    output += "\nRecurso ID: " + str(resource[0]) + " desbloqueado  \n"
-                else:
-                    output += "Recurso ID: " + str(resource[0]) + " desbloqueado  \n"
-
-
-
+        #
         # Acrescentar na output uma linha por cada recurso bloqueado, da forma:
         # recurso <número do recurso> bloqueado pelo cliente <id do cliente> até
         # <instante limite da concessão do bloqueio>
         #
         # Caso o recurso não esteja bloqueado a linha é simplesmente da forma:
         # recurso <número do recurso> desbloqueado
-
+        # Caso o recurso não esteja inativo a linha é simplesmente da forma:
+        # recurso <número do recurso> inativo
+        #
         return output
-
 
 ###############################################################################
 
 # código do programa principal
 
 
-sock = sock_utils.create_tcp_server_socket('', int(argv[1]), 10)
+HOST = '127.0.0.1'
+PORT = sys.argv[2]
 
-print "Nº Resources: ", argv[2]
-print "Nº Maximo de Utilizadores num Recurso: ", argv[3]
-print "Tempo Limite:", argv[4], "\n"
+i = 0
+listener_socket = su.create_tcp_server_socket(HOST, PORT, queue_size)
 
-lock_pool = lock_pool(int(argv[2]), int(argv[3]), int(argv[4]))
 
-start_time = time.time()
 
-while True:
+    a = True
+    global i
+    
+    while a:
 
-    print "Now Listening...\n"
+        conn_sock, addr = listener_socket.accept()
 
-    print lock_pool.__repr__
+        print 'New Connection --> ', addr
+       
+        size_bytes = su.receive_all(conn_sock, 4)
+        size = struct.unpack('!i', size_bytes)[0]
 
-    (conn_sock, addr) = sock.accept()
+        msg_bytes = su.recieve_all(conn_sock, size)
+        dados_recebidos = pickle.loads(msg_bytes)
 
-    print "Connected to: ", addr, "\n"
+        if 'get' in dados_recebidos:
+            
+            try:
+                values = list(msg_dic.values())
+                out = values[int(dados_recebidos[1])]
+                conn_sock.send(str(out))
+                print "GET command executed"
 
-    data = sock_utils.receive_all(conn_sock, 1024)
-    msg = data.split()
+            except(ValueError):
+                pass 
 
-    lock_pool.clear_expired_locks()
+        elif 'list' in dados_recebidos:
+            
+            try:
+                out = ""
+                for value in msg_dic.values():
+                    string = value[0]
+                    out += string + ", "
+            
+                conn_sock.send(out)
+                print "LIST command executed"
 
-    # Verifica se esse recurso existe
-    if int(msg[1]) > (int(argv[2]) - 1):
-        conn_sock.sendall("UNKNOWN RESOURCE")
-    # Commando Lock
-    elif "Lock" in msg:
-        Estado = lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[4]))
-        if Estado == True:
-            print "Resource: ", msg[1], "Locked"
-            conn_sock.sendall("OK")
-            conn_sock.close()
+            except(ValueError):
+                pass
+
+        elif 'exit' in  dados_recebidos:
+            
+            print "EXIT command executed"
+            print "Client disconnected"
+        
+       
+        
         else:
-            conn_sock.sendall("NOK")
-            conn_sock.close()
-    # Comando Release
-    elif "Release" in msg:
-        Estado = lock_pool.release(int(msg[1]), int(msg[2]))
-        if Estado == True:
-            print "Resource: ", msg[1], "Released"
-            conn_sock.sendall("OK")
-            conn_sock.close()
-        else:
-            conn_sock.sendall("NOK")
-            conn_sock.close()
-    # Comando Test
-    elif "Test" in msg:
-        Estado = lock_pool.test(int(msg[1]))
-        if Estado == True:
-            conn_sock.sendall("LOCKED")
-        else:
-            conn_sock.sendall("NOT LOCKED")
-    # Comando Stats
-    elif "Stats" in msg:
-        conn_sock.sendall(str(lock_pool.stat(int(msg[1]))))
-    # Comando Stats_k
-    elif "Stats_k" in msg:
-        conn_sock.sendall(str(lock_pool.stat_k((int(msg[1])))))
+            
+            conn_sock.send("Invalid operation, please use 'GET', 'LIST', 'ADD' or 'REMOVE'.")    
+            
 
-    else:
-        conn_sock.sendall("UNKNOWN COMMAND")
-        conn_sock.close()
-
-sock.close()
+    listener_socket.close()

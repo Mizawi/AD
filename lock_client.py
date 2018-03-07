@@ -2,30 +2,39 @@
 # -*- coding: utf-8 -*-
 """
 Aplicações distribuídas - Projeto 1 - lock_client.py
-Grupo: 09
-Números de aluno: 48314 | 48299 | 48292
+Grupo:
+Números de aluno: 
 """
 # Zona para fazer imports
-
-from net_client import server
-from sys import argv
+import socket as s
+import sys
+import sock_utils as su
+import pickle, struct
 
 # Programa principal
+HOST = sys.argv[1]
+PORT = sys.argv[2]
+a = True
 
-client_socket = server(argv[1], argv[2])
+while a:
+    client_socket = su.create_tcp_client_socket(HOST, PORT)
 
-ID = argv[3]
+    msg = list(raw_input("Escreva uma mensagem para enviar --> "))
+    
+    if 'EXIT' in msg:
 
-socket = client_socket.connect()
+        client_socket.sendall('EXIT')
+        print "Client closed"
+        a = False
+        
+    else:
+        msg_bytes = pickle.dumps(msg, -1)
+        size_bytes = struct.pack('!i', len(msg_bytes))
+        client_socket.sendall(msg_bytes)
+        client_socket.sendall(size_bytes)
+        dados_recebidos = su.receive_all(client_socket, 1024)
+        print 'Recebi %s' % dados_recebidos
 
-print "Connected to: ", argv[1]
-print "ID Client: ", argv[3]
+    client_socket.close()
 
-cmd = raw_input("comando > ")
-cmd += " " + ID
-	
-resposta = client_socket.send_receive(socket, cmd)
 
-print "Resposta: ", resposta
-
-client_socket.close(socket)
