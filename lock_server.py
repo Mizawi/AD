@@ -81,11 +81,14 @@ class lock_pool:
         recurso seja libertado.
 		Define T, o tempo máximo de concessão de bloqueio.
         """
-        
-        self.N = N
+        lock_array = []
+
+        for i in range(N):
+            lock_array.append([i, resource_lock()])
         self.K = K
         self.Y = Y
         self.T = T
+        self.locks = 0
 
     def clear_expired_locks(self):
         """
@@ -93,7 +96,7 @@ class lock_pool:
         de concessão do bloqueio. Liberta os recursos caso o seu tempo de
         concessão tenha expirado.
         """
-        pass # Remover esta linha e fazer implementação da função
+        
 
     def lock(self, resource_id, client_id, time_limit):
         """
@@ -105,40 +108,58 @@ class lock_pool:
         verificar estas condições.
         Retorna True em caso de sucesso e False caso contrário.
         """
-        pass # Remover esta linha e fazer implementação da função
+        if resource_id.test() == True:
+            return False
+        else:
+            if resource_id.nBlock <= self.Y:
+                resource_id.lock(client_id, time_limit)
+                self.locks += 1
+                return True
 
     def release(self, resource_id, client_id):
         """
         Liberta o bloqueio sobre o recurso resource_id pelo cliente client_id.
         True em caso de sucesso e False caso contrário.
         """
-        pass # Remover esta linha e fazer implementação da função
+        
+        for resource in self.lock_array:
+            if resource[0] == resource_id:
+                return resource[1].release(client_id)
 
     def test(self,resource_id):
         """
-        Retorna True se o recurso resource_id estiver bloqueado e False caso 
-        esteja bloqueado ou inativo.
+        Retorna True se o recurso resource_id estiver bloqueado False caso 
+        esteja desbloqueado ou inativo.
         """
-        pass # Remover esta linha e fazer implementação da função
+        for resource in self.lock_array:
+            if resource[0] == resource_id:
+                return resource[1].test()
 
     def stat(self,resource_id):
         """
         Retorna o número de vezes que o recurso resource_id já foi bloqueado, dos 
         K bloqueios permitidos.
         """
-        pass # Remover esta linha e fazer implementação da função
+        for resource in self.lock_array:
+            if resource[0] == resource_id:
+                return resource[1].stat()
+
 
     def stat_y(self):
         """
         Retorna o número de recursos bloqueados num dado momento do Y permitidos.
         """
-        pass # Remover esta linha e fazer implementação da função
+        return self.locks
 
     def stat_n(self):
         """
-        Retorna o número de recursos disponíneis em N.
+        Retorna o número de recursos disponíveis em N.
         """
-        pass # Remover esta linha e fazer implementação da função
+        n_available = 0
+
+        for resource in self.lock_array:
+            if resource[1].test() == 
+
 		
     def __repr__(self):
         """
