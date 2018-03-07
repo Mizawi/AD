@@ -10,31 +10,42 @@ import socket as s
 import sys
 import sock_utils as su
 import pickle, struct
+from net_client import server
+from sys import argv
 
 # Programa principal
+
 HOST = sys.argv[1]
 PORT = sys.argv[2]
-a = True
 
-while a:
-    client_socket = su.create_tcp_client_socket(HOST, PORT)
+client_socket = server(argv[1], argv[2])
+socket = client_socket.connect()
 
-    msg = list(raw_input("Escreva uma mensagem para enviar --> "))
-    
+print "Connected to: ", argv[1]
+print "ID Client: ", argv[3]
+
+while True:
+
+
+    cmd = raw_input("comando > ")
+    cmd += " " + argv[3]
+
     if 'EXIT' in msg:
 
-        client_socket.sendall('EXIT')
-        print "Client closed"
-        a = False
-        
-    else:
-        msg_bytes = pickle.dumps(msg, -1)
-        size_bytes = struct.pack('!i', len(msg_bytes))
-        client_socket.sendall(msg_bytes)
-        client_socket.sendall(size_bytes)
-        dados_recebidos = su.receive_all(client_socket, 1024)
-        print 'Recebi %s' % dados_recebidos
+        print "Client connection closed"
+        client_socket.close()
+        sys.exit()
 
-    client_socket.close()
+    else:
+
+        cmd = raw_input("comando > ")
+        cmd += " " + ID
+
+        resposta = client_socket.send_receive(socket, cmd)
+
+        print "Resposta: ", resposta
+
+
+
 
 

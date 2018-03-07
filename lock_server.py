@@ -11,6 +11,7 @@ Números de aluno:
 import socket as s
 import sock_utils as su
 import sys, os
+from sys import argv
 import pickle, struct
 import time
 
@@ -22,7 +23,7 @@ class resource_lock:
         """
         Define e inicializa as características de um LOCK num recurso.
         """
-        self.id =
+
         self.block = False
         self.nBlock = 0
         self.client = "NONE"
@@ -210,6 +211,24 @@ class lock_pool:
         passada à função print.
         """
         output = ""
+
+        for resource in self.ArrayLock:
+            if resource[1].test():
+                clients = " "
+                for client in resource[1].BlockClients:
+                    clients += "" + str(client) + ","
+                print resource[1].time
+                output += ("Recurso ID: " + str(
+                    resource[0]) + " bloqueado pelo(s) o cliente(s):" + clients + " até aos " + str(
+                    resource[1].time_limit) + " Segundos, Tempo passado: " + str(
+                    time.time() - resource[1].time) + " Segundos\n")
+
+            else:
+                if resource[0] == 0:
+                    output += "\nRecurso ID: " + str(resource[0]) + " desbloqueado  \n"
+                else:
+                    output += "Recurso ID: " + str(resource[0]) + " desbloqueado  \n"
+
         #
         # Acrescentar na output uma linha por cada recurso bloqueado, da forma:
         # recurso <número do recurso> bloqueado pelo cliente <id do cliente> até
@@ -229,16 +248,17 @@ class lock_pool:
 
 
 HOST = '127.0.0.1'
-PORT = sys.argv[2]
+PORT = argv[2]
+
 
 i = 0
-listener_socket = su.create_tcp_server_socket(HOST, PORT, queue_size)
+listener_socket = su.create_tcp_server_socket(HOST, PORT)
 
 global i
 
 while True:
 
-    sock = sock_utils.create_tcp_server_socket('', int(argv[1]), 10)
+    sock = su.create_tcp_server_socket('', int(argv[1]), 10)
 
     print "Nº Resources: ", argv[2]
     print "Nº Maximo de Utilizadores num Recurso: ", argv[3]
