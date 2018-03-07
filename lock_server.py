@@ -117,7 +117,8 @@ class lock_pool:
         de concessão do bloqueio. Liberta os recursos caso o seu tempo de
         concessão tenha expirado.
         """
-        
+        for resource in lock_array:
+            if resource[1].time >= self.T:
 
     def lock(self, resource_id, client_id, time_limit):
         """
