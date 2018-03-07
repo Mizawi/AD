@@ -1,18 +1,15 @@
-#!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Aplicações distribuídas - Projeto 1 - lock_client.py
-Grupo: 09
-Números de aluno: 48314 | 48299 | 48292
+Aplicações distribuídas - Projeto 1 - net_client.py
+Grupo:
+Números de aluno:
 """
 
 # zona para fazer importação
 
 from sock_utils import create_tcp_client_socket
 
-
-
-# definição da classe server
+# definição da classe server 
 
 class server:
     """
@@ -20,31 +17,28 @@ class server:
     para estabelecer a ligação, para envio de um comando e receção da resposta,
     e para terminar a ligação
     """
-
     def __init__(self, address, port):
         """
         Inicializa a classe com parâmetros para funcionamento futuro.
         """
-        self.address = address
-        self.port = port
-
+        pass # Remover esta linha e fazer implementação da função
+        
     def connect(self):
         """
         Estabelece a ligação ao servidor especificado na inicialização do
         objeto.
         """
-        return create_tcp_client_socket(self.address, self.port)
+        pass # Remover esta linha e fazer implementação da função
 
-    def send_receive(self, socket, data):
+    def send_receive(self, data):
         """
         Envia os dados contidos em data para a socket da ligação, e retorna a
         resposta recebida pela mesma socket.
         """
-        socket.sendall(data)
-        return socket.recv(1024)
-
-    def close(self, socket):
+        pass # Remover esta linha e fazer implementação da função
+    
+    def close(self):
         """
         Termina a ligação ao servidor.
         """
-        socket.close()
+        pass # Remover esta linha e fazer implementação da função
