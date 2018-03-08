@@ -1,28 +1,64 @@
+# coding=utf-8
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import socket as s
-from multiprocessing import Process
+
+"""
+Aplicações distribuídas - Projeto 1 - net_client.py
+Grupo: 01
+Números de aluno: 48314 | 48292 | 48299
+
+"""
 
 
-def create_tcp_server_socket(address, port):
-    """Creates a server socket"""
+def create_tcp_server_socket(address, port, queue_size):
+    """
+    Cria uma socket do tipo TCP para ser usada como Servidor
+    :param str adress:
+    :param int port:
+    :return socket sock:
+    """
+    host = address
+    port = int(port)
 
-    sock = s.socket(s.AF_INET, s.SOCK_STREAM,)
+    sock = s.socket(s.AF_INET, s.SOCK_STREAM, s.IPPROTO_TCP)
     sock.setsockopt(s.SOL_SOCKET, s.SO_REUSEADDR, 1)
-    sock.bind((address, int(port)))
+    sock.bind((host, port))
+    sock.listen(queue_size)
 
     return sock
 
+
 def create_tcp_client_socket(address, port):
-    """Creates a client socket"""
+    """
+    Cria uma socket do tipo TCP para ser usada como Client
+    :param str address:
+    :param int port:
+    :return socket sock:
+    """
+
+    host = address
+    port = int(port)
 
     sock = s.socket(s.AF_INET, s.SOCK_STREAM)
-    sock.connect((address, int(port)))
+    sock.connect((host, port))
 
     return sock
 
 
 def receive_all(socket, length):
-    """Data transmitter"""
+    """Retorna os dados a receber de tamanho length, caso passado 10000
+    segundos manda mensagem a dizer "Não recebi dados"
 
-    msg = socket.recv(length)
-    return msg
+    :param socket socket:
+    :param int length:
+    :return socket.recv(length):
+    """
 
+    socket.settimeout(10000)
+    try:
+        return socket.recv(length)
+    except socket.timeout() as socket:
+        socket.timeout(None)
+        socket.sendall("Nao recebi dados")

@@ -1,16 +1,16 @@
-
+# coding=utf-8
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 """
 Aplicações distribuídas - Projeto 1 - net_client.py
 Grupo: 01
-Números de aluno: 48314 | 48299 | 48292
+Números de aluno: 48314 | 48292 | 48299
+
 """
 
 # zona para fazer importação
 
 from sock_utils import create_tcp_client_socket
-import sys
 
 
 
@@ -29,14 +29,14 @@ class server:
         """
         self.address = address
         self.port = port
-        self.client_sock = create_tcp_client_socket()
 
     def connect(self):
         """
         Estabelece a ligação ao servidor especificado na inicialização do
         objeto.
         """
-        self.client_sock.connect((self.address, int(self.port)))
+
+        return create_tcp_client_socket(self.address, self.port)
 
     def send_receive(self, socket, data):
         """

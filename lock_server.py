@@ -1,18 +1,16 @@
-#!/usr/bin/python
+# coding=utf-8
+# !/usr/bin/python
 # -*- coding: utf-8 -*-
 """
 Aplicações distribuídas - Projeto 1 - lock_server.py
-Grupo:
-Números de aluno:
+Grupo: 01
+Números de aluno: 48299 | 48314 | 48292
 """
 
 # Zona para fazer importação
 
-import socket as s
 import sock_utils as su
-import sys, os
 from sys import argv
-import pickle, struct
 import time
 
 
@@ -38,7 +36,7 @@ class resource_lock:
         Retorna True se bloqueou o recurso ou False caso contrário.
         """
 
-        if self.block != True or self.block != "Unavailable":
+        if self.block == False or self.block != "Unavailable":
             self.block = True
             self.client = client_id
             self.time = time.time()
@@ -102,10 +100,11 @@ class lock_pool:
         recurso seja libertado.
 		Define T, o tempo máximo de concessão de bloqueio.
         """
-        lock_array = []
 
-        for i in range(1,N):
-            lock_array.append([i, resource_lock()])
+        self.lock_array = []
+
+        for i in range(1, N):
+            self.lock_array.append([i, resource_lock()])
         self.K = K
         self.Y = Y
         self.T = T
@@ -118,7 +117,7 @@ class lock_pool:
         concessão tenha expirado.
         """
         for resource in self.lock_array:
-            if resource[1].time >= self.T:
+            if time.time() - resource[1].time >= self.T:
                 resource[1].urelease()
 
     def lock(self, resource_id, client_id, time_limit):
@@ -130,30 +129,27 @@ class lock_pool:
         excedido. É aconselhável implementar um método __try_lock__ para
         verificar estas condições.
         Retorna True em caso de sucesso e False caso contrário.
+
         """
+        for re in self.lock_array:
+            if re[1].client == client_id:
+                if re[0] != resource_id:
+                    return False
+
         for resource in self.lock_array:
-            
+
             if resource[0] == resource_id:
-                if resource[1].test() == True:
+                if resource[1].test():
                     return False
 
                 else:
-                    if resource[1].nBlock <= self.Y:
-                        if resource[1].client == client_id
-                            for resource in self.lock_array:
-                                if resource[1].client == client_id
-                                    if resource[0] != resource_id:
-                                        return False
-                            resource_id.lock(client_id, time_limit)
+                    if self.locks <= self.Y:
+                            resource[1].lock(client_id, time_limit)
                             self.locks += 1
                             return True
-                        else:
-                            return False
-                    
                     else:
-                        return False
+                            return False
         return False
-
 
     def release(self, resource_id, client_id):
         """
@@ -163,6 +159,7 @@ class lock_pool:
 
         for resource in self.lock_array:
             if resource[0] == resource_id:
+                self.locks -= 1
                 return resource[1].release(client_id)
 
     def test(self, resource_id):
@@ -212,11 +209,9 @@ class lock_pool:
         """
         output = ""
 
-        for resource in self.ArrayLock:
+        for resource in self.lock_array:
             if resource[1].test():
-                clients = " "
-                for client in resource[1].BlockClients:
-                    clients += "" + str(client) + ","
+                clients = " " + str(resource[1].client) + " "
                 print resource[1].time
                 output += ("Recurso ID: " + str(
                     resource[0]) + " bloqueado pelo(s) o cliente(s):" + clients + " até aos " + str(
@@ -247,84 +242,75 @@ class lock_pool:
 # código do programa principal
 
 
-HOST = '127.0.0.1'
-PORT = argv[2]
+server_sock = su.create_tcp_server_socket('', int(argv[1]),1)
 
+print "Port: ", argv[1]
+print "Nº Resources: ", argv[2]
+print "Nº Maximo de Utilizadores num Recurso: ", argv[3]
+print "Nº Maximo de Recursos Bloqueados ao mesmo tempo: ", argv[4]
+print "Tempo Limite:", argv[5], "\n"
 
-i = 0
-listener_socket = su.create_tcp_server_socket(HOST, PORT)
+lock_pool = lock_pool(int(argv[2]), int(argv[3]), int(argv[4]), int(argv[5]))
 
-global i
+start_time = time.time()
 
 while True:
 
-    sock = su.create_tcp_server_socket('', int(argv[1]), 10)
+    print "Now Listening...\n"
 
-    print "Nº Resources: ", argv[2]
-    print "Nº Maximo de Utilizadores num Recurso: ", argv[3]
-    print "Tempo Limite:", argv[4], "\n"
+    (conn_sock, addr) = server_sock.accept()
 
-    lock_pool = lock_pool(int(argv[2]), int(argv[3]))
+    print lock_pool.__repr__()
 
-    start_time = time.time()
+    print "Connected to: ", addr, "\n"
 
-    while True:
+    data = su.receive_all(conn_sock, 1024)
+    msg = data.split()
 
-        print "Now Listening...\n"
+    print msg
 
-        print lock_pool.__repr__
+    lock_pool.clear_expired_locks()
 
-        (conn_sock, addr) = sock.accept()
-
-        print "Connected to: ", addr, "\n"
-
-        data = su.receive_all(conn_sock, 1024)
-        msg = data.split()
-
-        lock_pool.clear_expired_locks()
-
-        # Verifica se esse recurso existe
-        if int(msg[1]) > (int(argv[2]) - 1):
-            conn_sock.sendall("UNKNOWN RESOURCE")
-        # Commando Lock
-        elif "Lock" in msg:
-            Estado = lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[4]))
-            if Estado == True:
-                print "Resource: ", msg[1], "Locked"
-                conn_sock.sendall("OK")
-                conn_sock.close()
-            else:
-                conn_sock.sendall("NOK")
-                conn_sock.close()
-        # Comando Release
-        elif "Release" in msg:
-            Estado = lock_pool.release(int(msg[1]), int(msg[2]))
-            if Estado == True:
-                print "Resource: ", msg[1], "Released"
-                conn_sock.sendall("OK")
-                conn_sock.close()
-            else:
-                conn_sock.sendall("NOK")
-                conn_sock.close()
-        # Comando Test
-        elif "Test" in msg:
-            Estado = lock_pool.test(int(msg[1]))
-            if Estado == True:
-                conn_sock.sendall("LOCKED")
-            else:
-                conn_sock.sendall("NOT LOCKED")
-        # Comando Stats
-        elif "Stats" in msg:
-            conn_sock.sendall(str(lock_pool.stat(int(msg[1]))))
-        # Comando Stats_y
-        elif "Stats y" in msg:
-            conn_sock.sendall(str(lock_pool.stat_y()))
-        # Comando Stats_n
-        elif "Stats n" in msg:
-            conn_sock.sendall(str(lock_pool.stat_n()))
-
-        else:
-            conn_sock.sendall("UNKNOWN COMMAND")
+    # Verifica se esse recurso existe
+    if int(msg[1]) > (int(argv[2]) - 1):
+        conn_sock.sendall("UNKNOWN RESOURCE")
+    # Commando Lock
+    elif "LOCK" in msg:
+        if lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])):
+            print "Resource ID: ", msg[1], "Locked"
+            conn_sock.sendall("OK")
             conn_sock.close()
+        else:
+            conn_sock.sendall("NOK")
+            conn_sock.close()
+    # Comando Release
+    elif "RELEASE" in msg:
+        Estado = lock_pool.release(int(msg[1]), int(msg[2]))
+        if Estado == True:
+            print "Resource: ", msg[1], "Released"
+            conn_sock.sendall("OK")
+            conn_sock.close()
+        else:
+            conn_sock.sendall("NOK")
+            conn_sock.close()
+    # Comando Test
+    elif "TEST" in msg:
+        Estado = lock_pool.test(int(msg[1]))
+        if Estado == True:
+            conn_sock.sendall("LOCKED")
+        else:
+            conn_sock.sendall("NOT LOCKED")
+    # Comando Stats
+    elif "STATS" in msg:
+        conn_sock.sendall(str(lock_pool.stat(int(msg[1]))))
+    # Comando Stats_y
+    elif "STATS-Y" in msg:
+        conn_sock.sendall(str(lock_pool.stat_y()))
+    # Comando Stats_n
+    elif "STATS-N" in msg:
+        conn_sock.sendall(str(lock_pool.stat_n()))
 
-listener_socket.close()
+    else:
+        conn_sock.sendall("UNKNOWN COMMAND")
+        conn_sock.close()
+sock.close()
