@@ -286,7 +286,7 @@ while True:
     print "Connected to: ", addr, "\n"
 
     data = su.receive_all(conn_sock, 1024)
-    print data
+
     msg = data.split()
 
     print msg
