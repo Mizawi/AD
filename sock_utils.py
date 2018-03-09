@@ -5,7 +5,7 @@
 import socket as s
 
 """
-Aplicações distribuídas - Projeto 1 - net_client.py
+Aplicações distribuídas - Projeto 1 - sock_utils.py
 Grupo: 01
 Números de aluno: 48314 | 48292 | 48299
 
