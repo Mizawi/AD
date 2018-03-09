@@ -68,49 +68,52 @@ while True:
             print "Parametros Errados"
 
     elif "STATS" in cmd:
-        if len(cmd.split()) == 2:
 
-            client_socket = server(argv[1], argv[2])
-            socket = client_socket.connect()
-            resposta = client_socket.send_receive(socket, cmd)
+        if "STATS-Y" in cmd.split():
 
-            print resposta
+            if len(cmd.split()) == 1:
+                client_socket = server(argv[1], argv[2])
+                socket = client_socket.connect()
+                resposta = client_socket.send_receive(socket, cmd)
 
-            client_socket.close(socket)
-            print "Ligação Fechada"
+                print resposta
 
+                client_socket.close(socket)
+                print "Ligação Fechada"
+
+            else:
+                print "Parametros Errados"
+
+        elif "STATS-N" in cmd.split():
+
+            if len(cmd.split()) == 1:
+
+                client_socket = server(argv[1], argv[2])
+                socket = client_socket.connect()
+                resposta = client_socket.send_receive(socket, cmd)
+
+                print resposta
+
+                client_socket.close(socket)
+                print "Ligação Fechada"
+
+            else:
+                print "Parametros Errados"
         else:
-            print "Parametros Errados"
 
-    elif "STATS-Y" in cmd:
-        if len(cmd.split()) == 1:
-            client_socket = server(argv[1], argv[2])
-            socket = client_socket.connect()
-            resposta = client_socket.send_receive(socket, cmd)
+            if len(cmd.split()) == 2:
 
-            print resposta
+                client_socket = server(argv[1], argv[2])
+                socket = client_socket.connect()
+                resposta = client_socket.send_receive(socket, cmd)
 
-            client_socket.close(socket)
-            print "Ligação Fechada"
+                print resposta
 
-        else:
-            print "Parametros Errados"
+                client_socket.close(socket)
+                print "Ligação Fechada"
 
-    elif "STATS-N" in cmd:
-        print cmd
-        if len(cmd.split()) == 1:
-            client_socket = server(argv[1], argv[2])
-            sock = client_socket.connect()
-            resposta = client_socket.send_receive(socket, cmd)
-
-            print resposta
-
-            client_socket.close(socket)
-            print "Ligação Fechada"
-
-        else:
-            print "Parametros ErradosST"
-
+            else:
+                print "Parametros Errados"
     elif 'EXIT' in cmd:
 
         sys.exit()

@@ -286,54 +286,64 @@ while True:
     print "Connected to: ", addr, "\n"
 
     data = su.receive_all(conn_sock, 1024)
+    print data
     msg = data.split()
 
     print msg
 
     lock_pool.clear_expired_locks()
 
-    # Verifica se esse recurso existe
-    if int(msg[1]) > (int(argv[2]) - 1):
-        conn_sock.sendall("UNKNOWN RESOURCE")
     # Commando Lock
-    elif "LOCK" in msg:
-        if lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == True:
-            print "Resource ID: ", msg[1], "Locked"
-            conn_sock.sendall("OK")
-            conn_sock.close()
-        elif lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == "Unavailable":
-            print "Resource ID: ", msg[1], "Unavailable"
-            conn_sock.sendall("NOT AVAILABLE")
-            conn_sock.close()
-        elif lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == False:
-            conn_sock.sendall("NOK")
-            conn_sock.close()
+    if "LOCK" in msg:
+        if int(msg[1]) > (int(argv[2]) - 1):
+            conn_sock.sendall("UNKNOWN RESOURCE")
+        else:
+            if lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == True:
+                print "Resource ID: ", msg[1], "Locked"
+                conn_sock.sendall("OK")
+                conn_sock.close()
+            elif lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == "Unavailable":
+                print "Resource ID: ", msg[1], "Unavailable"
+                conn_sock.sendall("NOT AVAILABLE")
+                conn_sock.close()
+            elif lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == False:
+                conn_sock.sendall("NOK")
+                conn_sock.close()
     # Comando Release
     elif "RELEASE" in msg:
-        if lock_pool.release(int(msg[1]), int(msg[2])):
-            print "Resource: ", msg[1], "Released"
-            conn_sock.sendall("OK")
-            conn_sock.close()
+        if int(msg[1]) > (int(argv[2]) - 1):
+            conn_sock.sendall("UNKNOWN RESOURCE")
         else:
-            conn_sock.sendall("NOK")
-            conn_sock.close()
+            if lock_pool.release(int(msg[1]), int(msg[2])):
+                print "Resource: ", msg[1], "Released"
+                conn_sock.sendall("OK")
+                conn_sock.close()
+            else:
+                conn_sock.sendall("NOK")
+                conn_sock.close()
     # Comando Test
     elif "TEST" in msg:
-        Estado = lock_pool.test(int(msg[1]))
-        if Estado == True:
-            conn_sock.sendall("LOCKED")
-        elif Estado == "Unavailable":
-            conn_sock.sendall("NOT AVAILABLE")
-        elif Estado == False:
-            conn_sock.sendall("NOT LOCKED")
+        if int(msg[1]) > (int(argv[2]) - 1):
+            conn_sock.sendall("UNKNOWN RESOURCE")
+        else:
+            Estado = lock_pool.test(int(msg[1]))
+            if Estado == True:
+                conn_sock.sendall("LOCKED")
+            elif Estado == "Unavailable":
+                conn_sock.sendall("NOT AVAILABLE")
+            elif Estado == False:
+                conn_sock.sendall("NOT LOCKED")
     # Comando Stats
-    elif "STATS" in msg:
-        conn_sock.sendall(str(lock_pool.stat(int(msg[1]))))
+    elif "STATS" == msg[0]:
+        if int(msg[1]) > (int(argv[2]) - 1):
+            conn_sock.sendall("UNKNOWN RESOURCE")
+        else:
+            conn_sock.sendall(str(lock_pool.stat(int(msg[1]))))
     # Comando Stats_y
-    elif "STATS-Y" in msg:
+    elif "STATS-Y" == msg[0]:
         conn_sock.sendall(str(lock_pool.stat_y()))
     # Comando Stats_n
-    elif "STATS-N" in msg:
+    elif "STATS-N" == msg[0]:
         conn_sock.sendall(str(lock_pool.stat_n()))
 
     else:
