@@ -114,7 +114,7 @@ class lock_pool:
 
         self.lock_array = []
 
-        for i in range(1, N):
+        for i in range(1, N+1):
             self.lock_array.append([i, resource_lock(K)])
         self.K = K
         self.Y = Y
