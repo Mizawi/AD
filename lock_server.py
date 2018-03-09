@@ -17,7 +17,7 @@ import time
 ###############################################################################
 
 class resource_lock:
-    def __init__(self):
+    def __init__(self, K):
         """
         Define e inicializa as características de um LOCK num recurso.
         """
@@ -27,6 +27,7 @@ class resource_lock:
         self.client = "NONE"
         self.time_limit = 0
         self.time = 0
+        self.K = K
 
     def lock(self, client_id, time_limit):
         """
@@ -36,11 +37,18 @@ class resource_lock:
         Retorna True se bloqueou o recurso ou False caso contrário.
         """
 
-        if self.block == False or self.block != "Unavailable":
-            self.block = True
-            self.client = client_id
-            self.time = time.time()
-            self.time_limit = time_limit
+        if self.block == False:
+            if self.nBlock < self.K:
+                    self.block = True
+                    self.client = client_id
+                    self.time = time.time()
+                    self.time_limit = time_limit
+                    self.nBlock += 1
+                    return True
+            else:
+                return "Unavailable"
+        else:
+            return False
 
     def urelease(self):
         """
@@ -62,6 +70,8 @@ class resource_lock:
             self.client = "NONE"
             self.time = 0
             self.time_limit = 0
+            return True
+        return False
 
     def test(self):
         """
@@ -86,6 +96,7 @@ class resource_lock:
         self.time = 0
 
 
+
 ###############################################################################
 
 class lock_pool:
@@ -104,7 +115,7 @@ class lock_pool:
         self.lock_array = []
 
         for i in range(1, N):
-            self.lock_array.append([i, resource_lock()])
+            self.lock_array.append([i, resource_lock(K)])
         self.K = K
         self.Y = Y
         self.T = T
@@ -118,7 +129,9 @@ class lock_pool:
         """
         for resource in self.lock_array:
             if time.time() - resource[1].time >= self.T:
-                resource[1].urelease()
+                if resource[1].test() == True:
+                    resource[1].urelease()
+
 
     def lock(self, resource_id, client_id, time_limit):
         """
@@ -139,14 +152,19 @@ class lock_pool:
         for resource in self.lock_array:
 
             if resource[0] == resource_id:
-                if resource[1].test():
+                if resource[1].test() == True:
                     return False
 
                 else:
                     if self.locks <= self.Y:
-                            resource[1].lock(client_id, time_limit)
                             self.locks += 1
-                            return True
+                            status = resource[1].lock(client_id, time_limit)
+                            if status == "Unavailable":
+                                resource[1].disable()
+                                return "Unavailable"
+                            else:
+                                return status
+
                     else:
                             return False
         return False
@@ -169,9 +187,6 @@ class lock_pool:
         """
         for resource in self.lock_array:
             if resource[0] == resource_id:
-                if resource[1].test() == "Unavailable":
-                    return False
-                else:
                     return resource[1].test()
 
     def stat(self, resource_id):
@@ -210,7 +225,7 @@ class lock_pool:
         output = ""
 
         for resource in self.lock_array:
-            if resource[1].test():
+            if resource[1].test() == True:
                 clients = " " + str(resource[1].client) + " "
                 print resource[1].time
                 output += ("Recurso ID: " + str(
@@ -218,7 +233,13 @@ class lock_pool:
                     resource[1].time_limit) + " Segundos, Tempo passado: " + str(
                     time.time() - resource[1].time) + " Segundos\n")
 
-            else:
+            elif resource[1].test() == "Unavailable":
+                if resource[0] == 0:
+                    output += "\nRecurso ID: " + str(resource[0]) + " inativo  \n"
+                else:
+                    output += "Recurso ID: " + str(resource[0]) + " inativo \n"
+
+            elif resource[1].test() == False:
                 if resource[0] == 0:
                     output += "\nRecurso ID: " + str(resource[0]) + " desbloqueado  \n"
                 else:
@@ -246,8 +267,8 @@ server_sock = su.create_tcp_server_socket('', int(argv[1]),1)
 
 print "Port: ", argv[1]
 print "Nº Resources: ", argv[2]
-print "Nº Maximo de Utilizadores num Recurso: ", argv[3]
-print "Nº Maximo de Recursos Bloqueados ao mesmo tempo: ", argv[4]
+print "Nº máximo de bloqueios permitidos para cada recurso: ", argv[3]
+print "Nº máximo permitido de recursos bloqueados num dado: ", argv[4]
 print "Tempo Limite:", argv[5], "\n"
 
 lock_pool = lock_pool(int(argv[2]), int(argv[3]), int(argv[4]), int(argv[5]))
@@ -276,17 +297,20 @@ while True:
         conn_sock.sendall("UNKNOWN RESOURCE")
     # Commando Lock
     elif "LOCK" in msg:
-        if lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])):
+        if lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == True:
             print "Resource ID: ", msg[1], "Locked"
             conn_sock.sendall("OK")
             conn_sock.close()
-        else:
+        elif lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == "Unavailable":
+            print "Resource ID: ", msg[1], "Unavailable"
+            conn_sock.sendall("NOT AVAILABLE")
+            conn_sock.close()
+        elif lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == False:
             conn_sock.sendall("NOK")
             conn_sock.close()
     # Comando Release
     elif "RELEASE" in msg:
-        Estado = lock_pool.release(int(msg[1]), int(msg[2]))
-        if Estado == True:
+        if lock_pool.release(int(msg[1]), int(msg[2])):
             print "Resource: ", msg[1], "Released"
             conn_sock.sendall("OK")
             conn_sock.close()
@@ -298,7 +322,9 @@ while True:
         Estado = lock_pool.test(int(msg[1]))
         if Estado == True:
             conn_sock.sendall("LOCKED")
-        else:
+        elif Estado == "Unavailable":
+            conn_sock.sendall("NOT AVAILABLE")
+        elif Estado == False:
             conn_sock.sendall("NOT LOCKED")
     # Comando Stats
     elif "STATS" in msg:

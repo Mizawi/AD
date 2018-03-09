@@ -97,6 +97,7 @@ while True:
             print "Parametros Errados"
 
     elif "STATS-N" in cmd:
+        print cmd
         if len(cmd.split()) == 1:
             client_socket = server(argv[1], argv[2])
             sock = client_socket.connect()
@@ -108,7 +109,7 @@ while True:
             print "Ligação Fechada"
 
         else:
-            print "Parametros Errados"
+            print "Parametros ErradosST"
 
     elif 'EXIT' in cmd:
 
