@@ -31,7 +31,7 @@ while True:
             print resposta
 
             client_socket.close(socket)
-            print "Ligação Fechada"
+            print "Ligação Terminada"
 
         else:
 
@@ -47,7 +47,7 @@ while True:
             print resposta
 
             client_socket.close(socket)
-            print "Ligação Fechada"
+            print "Ligação Terminada"
 
         else:
             print "Parametros Errados"
@@ -79,7 +79,7 @@ while True:
                 print resposta
 
                 client_socket.close(socket)
-                print "Ligação Fechada"
+                print "Ligação Terminada"
 
             else:
                 print "Parametros Errados"
@@ -95,7 +95,7 @@ while True:
                 print resposta
 
                 client_socket.close(socket)
-                print "Ligação Fechada"
+                print "Ligação Terminada"
 
             else:
                 print "Parametros Errados"
@@ -110,7 +110,7 @@ while True:
                 print resposta
 
                 client_socket.close(socket)
-                print "Ligação Fechada"
+                print "Ligação Terminada"
 
             else:
                 print "Parametros Errados"
