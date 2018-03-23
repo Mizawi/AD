@@ -6,115 +6,85 @@ Aplicações distribuídas - Projeto 1 - lock_client.py
 Grupo: 01
 Números de aluno: 48314 | 48292 | 48299
 """
+
 # Zona para fazer imports
 import sys
 from net_client import server
 from sys import argv
+import lock_stub as ls
+import pickle as p
+from pprint import PrettyPrinter
 
 # Programa principal
 
 
+pp = PrettyPrinter()
+
+
+ID = argv[3]
+
+
+print "Connected to: ", argv[1]
 print "ID Client: ", argv[3]
+client_socket = ls.LockStub(argv[1], argv[2])
 
-while True:
+connection = True
 
-    cmd = raw_input("comando > ")
+while connection:
 
-    if "LOCK" in cmd:
+    cmd = raw_input("comando > ").split("")
+    print "\n"
 
-        if len(cmd.split()) == 3:
+    if cmd[0] == "Q" or cmd[0] == "Quit":
+        connection = False
+        print "Conexão encerrada"
+        client_socket.close()
 
-            client_socket = server(argv[1], argv[2])
-            socket = client_socket.connect()
-            resposta = client_socket.send_receive(socket, cmd)
+    else:
 
-            print resposta
-
-            client_socket.close(socket)
-            print "Ligação Terminada"
-
-        else:
-
-            print "Parametros Errados"
-
-    elif "RELEASE" in cmd:
-        if len(cmd.split()) == 3:
-
-            client_socket = server(argv[1], argv[2])
-            socket = client_socket.connect()
-            resposta = client_socket.send_receive(socket, cmd)
-
-            print resposta
-
-            client_socket.close(socket)
-            print "Ligação Terminada"
-
-        else:
-            print "Parametros Errados"
-
-    elif "TEST" in cmd:
-        if len(cmd.split()) == 2:
-
-            client_socket = server(argv[1], argv[2])
-            socket = client_socket.connect()
-            resposta = client_socket.send_receive(socket, cmd)
-
-            print resposta
-
-            client_socket.close(socket)
-            print "Ligação Fechada"
-
-        else:
-            print "Parametros Errados"
-
-    elif "STATS" in cmd:
-
-        if "STATS-Y" in cmd.split():
-
-            if len(cmd.split()) == 1:
-                client_socket = server(argv[1], argv[2])
-                socket = client_socket.connect()
-                resposta = client_socket.send_receive(socket, cmd)
-
-                print resposta
-
-                client_socket.close(socket)
-                print "Ligação Terminada"
-
+        if "LOCK" == cmd[0]:
+            if len(cmd) == 3:
+                obj = p.loads(client_socket.lock([cmd[1], ID]))
             else:
                 print "Parametros Errados"
 
-        elif "STATS-N" in cmd.split():
-
-            if len(cmd.split()) == 1:
-
-                client_socket = server(argv[1], argv[2])
-                socket = client_socket.connect()
-                resposta = client_socket.send_receive(socket, cmd)
-
-                print resposta
-
-                client_socket.close(socket)
-                print "Ligação Terminada"
-
+        if "RELEASE" == cmd[0]:
+            if len(cmd) == 3:
+                obj = p.loads(client_socket.release([cmd[1], ID]))
             else:
                 print "Parametros Errados"
-        else:
 
-            if len(cmd.split()) == 2:
-
-                client_socket = server(argv[1], argv[2])
-                socket = client_socket.connect()
-                resposta = client_socket.send_receive(socket, cmd)
-
-                print resposta
-
-                client_socket.close(socket)
-                print "Ligação Terminada"
-
+        if "TEST" == cmd[0]:
+            if len(cmd) == 2:
+                obj = p.loads(client_socket.lock([cmd[1], ID]))
             else:
                 print "Parametros Errados"
-    elif 'EXIT' in cmd:
 
-        sys.exit()
+        if "STATS-Y" == cmd[0]:
+            if len(cmd) == 1:
+                obj = p.loads(client_socket.stats_y())
+            else:
+                print "Parametros Errados"
+
+        if "STATS-N" == cmd[0]:
+            if len(cmd) == 1:
+                obj = p.loads(client_socket.stats_n())
+            else:
+                print "Parametros Errados"
+        if "STATS" == cmd[0]:
+            if len(cmd) == 2:
+                obj = p.loads(client_socket.stats([cmd[1], ID]))
+            else:
+                print "Parametros Errados"
+
+        print "O Objecto é:"
+        pp.pprint(obj)
+
+        print "Resposta: ", obj[1]
+        print "\n"
+
+        client_socket = ls.LockStub(argv[1], argv[2])
+        print "Connected to: ", argv[1]
+        print "ID Client: ", argv[3]
+
 
