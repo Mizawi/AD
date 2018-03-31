@@ -32,7 +32,6 @@ class LockSkel:
         elif 10 == msg[0]:
             Estado = self.lp.lock(int(msg[2]), int(msg[1]), int(argv[4]))
             if Estado == True:
-                print "Resource: ", msg[2], "Locked"
                 answer = p.dumps([11, "OK"], -1)
             else:
                 answer = p.dumps([11, "NOK"], -1)

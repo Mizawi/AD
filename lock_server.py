@@ -21,8 +21,6 @@ s = Semaphore(1)
 pp = PrettyPrinter()
 ###############################################################################
 
-
-
 ListenSocket = sock_utils.create_tcp_server_socket('', int(argv[1]), 10)
 
 print "Port: ", argv[1]
@@ -35,11 +33,24 @@ lock_pool = skel.LockSkel(int(argv[2]), int(argv[3]), int(argv[4]), int(argv[5])
 
 SocketList = [ListenSocket]
 
+while True:
+    print "Now Listening...\n"
+    R, W, X = sel.select(SocketList, [], [])
+    for sckt in R:
+        if sckt is ListenSocket:
+            conn_sock, addr = ListenSocket.accept()
+            addr, port = conn_sock.getpeername()
+            print "Novo cliente ligado desde %s:%d" % (addr, port)
+            SocketList.append(conn_sock)
+        else:
+            msg = sckt.recv(1024)
+            if msg:
+                sckt.sendall()
 
 
 while True:
 
-    print "Now Listening...\n"
+
 
     (conn_sock, addr) = server_sock.accept()
 
