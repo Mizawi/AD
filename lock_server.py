@@ -29,100 +29,37 @@ print "Nº máximo de bloqueios permitidos para cada recurso: ", argv[3]
 print "Nº máximo permitido de recursos bloqueados num dado: ", argv[4]
 print "Tempo Limite:", argv[5], "\n"
 
-lock_pool = skel.LockSkel(int(argv[2]), int(argv[3]), int(argv[4]), int(argv[5]))
+
+lock_pool = skel.LockSkel(int(argv[2]), int(argv[3]))
 
 SocketList = [ListenSocket]
 
 while True:
-    print "Now Listening...\n"
     R, W, X = sel.select(SocketList, [], [])
     for sckt in R:
         if sckt is ListenSocket:
-            conn_sock, addr = ListenSocket.accept()
+            (conn_sock, addr) = ListenSocket.accept()
             addr, port = conn_sock.getpeername()
-            print "Novo cliente ligado desde %s:%d" % (addr, port)
+            print 'Novo client ligado desde %s:%d' % (addr, port)
             SocketList.append(conn_sock)
         else:
-            msg = sckt.recv(1024)
-            if msg:
-                sckt.sendall()
 
+            print lock_pool.lp.__repr__()
 
-while True:
+            lock_pool.lp.clear_expired_locks()
 
+            obj = p.loads(sock_utils.receive_all(conn_sock, 1024))
 
-
-    (conn_sock, addr) = server_sock.accept()
-
-
-
-    print "Connected to: ", addr, "\n"
-
-    data = su.receive_all(conn_sock, 1024)
-
-    msg = data.split()
-
-    print msg
-
-    lock_pool.clear_expired_locks()
-
-    # Commando Lock
-    if "LOCK" in msg:
-        if int(msg[1]) > (int(argv[2]) - 1):
-            conn_sock.sendall("UNKNOWN RESOURCE")
-        else:
-            if lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == True:
-                print "Resource ID: ", msg[1], "Locked"
-                conn_sock.sendall("OK")
-                conn_sock.close()
-            elif lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == "Unavailable":
-                print "Resource ID: ", msg[1], "Unavailable"
-                conn_sock.sendall("NOT AVAILABLE")
-                conn_sock.close()
-            elif lock_pool.lock(int(msg[1]), int(msg[2]), int(argv[5])) == False:
-                conn_sock.sendall("NOK")
-                conn_sock.close()
-    # Comando Release
-    elif "RELEASE" in msg:
-        if int(msg[1]) > (int(argv[2]) - 1):
-            conn_sock.sendall("UNKNOWN RESOURCE")
-        else:
-            if lock_pool.release(int(msg[1]), int(msg[2])):
-                print "Resource: ", msg[1], "Released"
-                conn_sock.sendall("OK")
-                conn_sock.close()
+            if obj:
+                if obj[0] == 01:
+                    sckt.close()
+                    SocketList.remove(sckt)
+                    print'Cliente fechou ligação'
+                else:
+                    conn_sock.sendall(lock_pool.msgreceiver(obj, argv))
+                    print "Objecto: ", pp.pprint(obj)
             else:
-                conn_sock.sendall("NOK")
-                conn_sock.close()
-    # Comando Test
-    elif "TEST" in msg:
-        if int(msg[1]) > (int(argv[2]) - 1):
-            conn_sock.sendall("UNKNOWN RESOURCE")
-        else:
-            Estado = lock_pool.test(int(msg[1]))
-            if Estado == True:
-                conn_sock.sendall("LOCKED")
-            elif Estado == "Unavailable":
-                conn_sock.sendall("NOT AVAILABLE")
-            elif Estado == False:
-                conn_sock.sendall("NOT LOCKED")
-    # Comando Stats
-    elif "STATS" == msg[0]:
-        if int(msg[1]) > (int(argv[2]) - 1):
-            conn_sock.sendall("UNKNOWN RESOURCE")
-        else:
-            conn_sock.sendall(str(lock_pool.stat(int(msg[1]))))
-    # Comando Stats_y
-    elif "STATS-Y" == msg[0]:
-        conn_sock.sendall(str(lock_pool.stat_y()))
-    # Comando Stats_n
-    elif "STATS-N" == msg[0]:
-        conn_sock.sendall(str(lock_pool.stat_n()))
+                sckt.close()
+                SocketList.remove(sckt)
+                print'Cliente fechou ligação'
 
-    else:
-        conn_sock.sendall("UNKNOWN COMMAND")
-        conn_sock.close()
-
-    print lock_pool.__repr__()
-
-sock.close()

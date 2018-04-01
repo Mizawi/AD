@@ -21,7 +21,6 @@ class LockSkel:
     def __init__(self, N, K):
         self.lp = l.lock_pool(N, K)
 
-
     def msgreceiver(self, msg, argv):
 
         pp.pprint(msg)
@@ -30,28 +29,32 @@ class LockSkel:
 
         # Commando Lock
         elif 10 == msg[0]:
-            Estado = self.lp.lock(int(msg[2]), int(msg[1]), int(argv[4]))
-            if Estado == True:
-                answer = p.dumps([11, "OK"], -1)
+            estado = self.lp.lock(int(msg[2]), int(msg[1]), int(argv[4]))
+            if estado == True:
+                answer = p.dumps([11, "True"], -1)
+            elif estado == "Unavailable":
+                answer = p.dumps([11, "Disable"], -1)
             else:
-                answer = p.dumps([11, "NOK"], -1)
+                answer = p.dumps([11, "False"], -1)
 
         # Comando Release
         elif 20 == msg[0]:
-            Estado = self.lp.release(int(msg[2]), int(msg[1]))
-            if Estado == True:
+            estado = self.lp.release(int(msg[2]), int(msg[1]))
+            if estado == True:
                 print "Resource: ", msg[2], "Released"
-                answer = p.dumps([21, "OK"], -1)
+                answer = p.dumps([21, "True"], -1)
             else:
-                answer = p.dumps([21, "NOK"], -1)
+                answer = p.dumps([21, "False"], -1)
 
         # Comando Test
         elif 30 == msg[0]:
-            Estado = self.lp.test(int(msg[len(msg) - 1]))
-            if Estado == True:
-                answer = p.dumps([31, "LOCKED"], -1)
+            estado = self.lp.test(int(msg[len(msg) - 1]))
+            if estado == True:
+                answer = p.dumps([31, "True"], -1)
+            elif estado == "Unavailable":
+                answer = p.dumps([31, "Disable"], -1)
             else:
-                answer = p.dumps([31, "NOT LOCKED"], -1)
+                answer = p.dumps([31, "False"], -1)
         # Comando Stats
         elif 40 == msg[0]:
             if str(self.lp.stat(int(msg[len(msg) - 1]))) > 0:
