@@ -155,7 +155,7 @@ class lock_pool:
                     return False
 
                 else:
-                    if self.locks <= self.Y:
+                    if self.locks < self.Y:
                             self.locks += 1
                             status = resource[1].lock(client_id, time_limit)
                             if status == "Unavailable":
@@ -229,7 +229,6 @@ class lock_pool:
         for resource in self.lock_array:
             if resource[1].test() == True:
                 clients = " " + str(resource[1].client) + " "
-                print resource[1].time
                 output += ("Recurso ID: " + str(
                     resource[0]) + " bloqueado pelo(s) o cliente(s):" + clients + " até aos " + str(
                     resource[1].time_limit) + " Segundos, Tempo passado: " + str(

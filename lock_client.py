@@ -18,30 +18,32 @@ from pprint import PrettyPrinter
 
 
 pp = PrettyPrinter()
-comandos = {"LOCK", "RELEASE", "STATS", "STATS-N", "STATS-Y"}
+comandos = {"LOCK", "RELEASE", "TEST", "STATS", "STATS-N", "STATS-Y"}
 
-#Tratamento do erro em caso que o servidor não esteja disponivel
-connected = False
-while connected == False:
-    try:
-        client_socket = ls.LockStub(argv[1], argv[2])
-        connected = True
-    except socket.error as s:
-        print" Ocorreu um erro na ligação ao servidor"
-        print"\n Aguarde enquanto o servidor se liga"
 
 ID = argv[3]
 
-print "Connectado a: ", argv[1]
 print "ID :", argv[3]
 
 connection = True
+
+print 'Ligado pelo endereço local %s:%d' % (argv[1], int(argv[2]))
+
 
 while connection:
 
     cmd = raw_input("comando > ")
     cmd = cmd.split(" ")
 
+    # Tratamento do erro em caso que o servidor não esteja disponivel
+    connected = False
+    while connected == False:
+        try:
+            client_socket = ls.LockStub(argv[1], argv[2])
+            connected = True
+        except socket.error as s:
+            print" Ocorreu um erro na ligação ao servidor"
+            print"\n Aguarde enquanto o servidor se liga"
 
     if cmd[0] == "Q" or cmd[0] == "Quit":
         connection = False
@@ -55,6 +57,7 @@ while connection:
         if "LOCK" == cmd[0]:
             if len(cmd) == 2:
                 obj = p.loads(client_socket.lock([cmd[1], ID]))
+                client_socket.close()
 
                 print "Objecto recebido:", pp.pprint(obj)
 
@@ -71,6 +74,7 @@ while connection:
         if "RELEASE" == cmd[0]:
             if len(cmd) == 2:
                 obj = p.loads(client_socket.release([cmd[1], ID]))
+                client_socket.close()
 
                 print "Objecto recebido:", pp.pprint(obj)
 
@@ -85,6 +89,7 @@ while connection:
         if "TEST" == cmd[0]:
             if len(cmd) == 2:
                 obj = p.loads(client_socket.test([cmd[1]]))
+                client_socket.close()
 
                 print "Objecto recebido:", pp.pprint(obj)
 
@@ -104,6 +109,8 @@ while connection:
             print "Entrei aqui Y"
             if len(cmd) == 1:
                 obj = p.loads(client_socket.stats_y())
+                client_socket.close()
+
                 print "Objecto recebido:", pp.pprint(obj)
                 print obj[1], " recursos estão bloqueados em Y"
 
@@ -114,6 +121,8 @@ while connection:
         if "STATS-N" == cmd[0]:
             if len(cmd) == 1:
                 obj = p.loads(client_socket.stats_n())
+                client_socket.close()
+
                 print "Objecto recebido:", pp.pprint(obj)
                 print obj[1], " recursos estão disponiveis"
 
@@ -125,6 +134,8 @@ while connection:
 
             if len(cmd) == 2:
                 obj = p.loads(client_socket.stats([cmd[1], ID]))
+                client_socket.close()
+
                 print "Objecto recebido:", pp.pprint(obj), "\n"
                 print "O nº de bloqueios no recurso ", cmd[1], "em K foram ", obj[1]
 

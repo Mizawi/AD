@@ -36,7 +36,6 @@ class LockSkel:
         elif 20 == msg[0]:
             estado = self.lp.release(int(msg[1]), int(msg[2]))
             if estado == True:
-                print "Resource: ", msg[2], "Released"
                 answer = p.dumps([21, "True"], -1)
             else:
                 answer = p.dumps([21, "False"], -1)
@@ -44,7 +43,6 @@ class LockSkel:
         # Comando Test
         elif 30 == msg[0]:
             estado = self.lp.test(int(msg[1]))
-            print estado
             if estado == True:
                 answer = p.dumps([31, "True"], -1)
             elif estado == "Unavailable":

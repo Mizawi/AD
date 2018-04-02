@@ -70,8 +70,5 @@ while True:
             lock_pool.lp.clear_expired_locks()
 
             print lock_pool.lp.__repr__()
-
     except EOFError:
-        print "A ligação com o cliente foi encerrada"
-        print " Á espera de nova ligação..."
-
+        pass
