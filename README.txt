@@ -1,14 +1,15 @@
 # Projeto-AD
 
 # Projeto realizado por Miguel Almeida 48314, Tiago Gonçalves 48299 e Henrique Peralta 48292
+# Grupo ad001
 
 Comando necessario para a execução do servidor (permanece ligado):
 
-	> python lock_server <PORTO_ID> <NºRecursos> <Nº máximo de bloqueios permitidos para cada recurso> <Nº máximo permitido de recursos bloqueados num dado> <Tempo Limite>
+	> python lock_server.py <PORTO_ID> <NºRecursos> <Nº máximo de bloqueios permitidos para cada recurso> <Nº máximo permitido de recursos bloqueados num dado> <Tempo Limite>
 
 Comando Necessario para a execução de um pedido do cliente (Envia o pedido, recebe a resposta e depois desliga-se):
 
-	> python lock_client <IP> <PORTO_ID> <ID_Client>
+	> python lock_client.py <IP> <PORTO_ID> <ID_Client>
 
 Todos os comandos funcionam:
 	LOCK <Resource_ID>

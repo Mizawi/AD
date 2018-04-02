@@ -1,9 +1,9 @@
 # coding=utf-8
-#!/usr/bin/python
+# !/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Aplicações distribuídas - Projeto 1 - net_client.py
-Grupo: 01
+Aplicações distribuídas - Projeto 2 - net_client.py
+Grupo: ad001
 Números de aluno: 48314 | 48292 | 48299
 
 """

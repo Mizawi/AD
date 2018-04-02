@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-Aplicações distribuídas - Projeto 1 - lock_pool.py
-Grupo: 01
+Aplicações distribuídas - Projeto 2 - lock_pool.py
+Grupo: ad001
 Números de aluno: 48314 | 48299 | 48292
 """
 
-import sock_utils as su
-from sys import argv
 import time
 
 

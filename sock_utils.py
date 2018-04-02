@@ -1,14 +1,13 @@
 # coding=utf-8
-#!/usr/bin/python
+# !/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import socket as s
 
 """
-Aplicações distribuídas - Projeto 1 - sock_utils.py
-Grupo: 01
-Números de aluno: 48314 | 48292 | 48299
-
+Aplicações distribuídas - Projeto 2 - sock_utils.py
+Grupo: ad001
+Números de aluno: 48314 | 48299 | 48292
 """
 
 

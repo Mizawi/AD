@@ -2,8 +2,8 @@
 # !/usr/bin/python
 # -*- coding: utf-8 -*-
 """
-Aplicações distribuídas - Projeto 1 - lock_server.py
-Grupo: 01
+Aplicações distribuídas - Projeto 2 - lock_server.py
+Grupo: ad001
 Números de aluno: 48299 | 48314 | 48292
 """
 
@@ -24,9 +24,12 @@ pp = PrettyPrinter()
 ###############################################################################
 
 #Tratamento do erro caso o endereço requisitado já esteja a ser usado
+
 try:
     ListenSocket = sock_utils.create_tcp_server_socket('', int(argv[1]), 10)
+
 except socket.error as s:
+
     print "O endereço já está a ser usado, modifique o valor do PORT"
     sys.exit()
 
@@ -70,5 +73,7 @@ while True:
             lock_pool.lp.clear_expired_locks()
 
             print lock_pool.lp.__repr__()
+
+    #tratamento deste erro permite a ligação de varios utilizadores sem o servidor ir abaixo
     except EOFError:
         pass

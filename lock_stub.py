@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 """
-Aplicações distribuídas - Projeto 1 - lock_stub.py
-Grupo: 09
+Aplicações distribuídas - Projeto 2 - lock_stub.py
+Grupo: ad001
 Números de aluno: 48314 | 48299 | 48292
 """
 from net_client import server

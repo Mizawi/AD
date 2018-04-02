@@ -3,7 +3,7 @@
 
 """
 Aplicações distribuídas - Projeto 1 - lock_skel.py
-Grupo: 01
+Grupo: ad001
 Números de aluno: 48314 | 48299 | 48292
 """
 
