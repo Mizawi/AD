@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Aplicações distribuídas - Projeto 1 - lock_skel.py
+Aplicações distribuídas - Projeto 2 - lock_skel.py
 Grupo: ad001
 Números de aluno: 48314 | 48299 | 48292
 """

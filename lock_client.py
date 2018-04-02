@@ -64,7 +64,7 @@ while connection:
                 if obj[1] == 'True':
                     print "Recurso", cmd[1], "foi bloqueado"
                 else:
-                    print "Recurso", cmd[1], "não foi ou já está bloqueado"
+                    print "Recurso", cmd[1], "não foi bloqueado"
 
 
             else:
@@ -81,7 +81,7 @@ while connection:
                 if obj[1] == 'True':
                     print "Recurso", cmd[1], "foi desbloqueado"
                 else:
-                    print "Recurso", cmd[1], "não foi ou já está desbloqueado"
+                    print "Recurso", cmd[1], "não foi desbloqueado ou já se encontra desbloqueado, verifique com TEST."
 
             else:
                 print "Parametros Errados"
