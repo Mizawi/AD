@@ -38,11 +38,8 @@ def create_tcp_client_socket(address, port):
     :return socket sock:
     """
 
-    host = address
-    port = int(port)
-
     sock = s.socket(s.AF_INET, s.SOCK_STREAM)
-    sock.connect((host, port))
+
 
     return sock
 

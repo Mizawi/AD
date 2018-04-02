@@ -12,8 +12,6 @@ Números de aluno: 48314 | 48292 | 48299
 
 from sock_utils import create_tcp_client_socket
 
-
-
 # definição da classe server
 
 class server:
@@ -29,21 +27,20 @@ class server:
         """
         self.address = address
         self.port = port
+        self.client_sock = create_tcp_client_socket(address, port)
 
     def connect(self):
         """
         Estabelece a ligação ao servidor especificado na inicialização do
         objeto.
         """
-
-        return create_tcp_client_socket(self.address, self.port)
+        self.client_sock.connect((self.address, int(self.port)))
 
     def send_receive(self, socket, data):
         """
         Envia os dados contidos em data para a socket da ligação, e retorna a
         resposta recebida pela mesma socket.
         """
-
         socket.sendall(data)
         return socket.recv(1024)
 

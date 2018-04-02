@@ -3,14 +3,12 @@
 
 """
 Aplicações distribuídas - Projeto 1 - lock_skel.py
-Grupo: 09
+Grupo: 01
 Números de aluno: 48314 | 48299 | 48292
 """
 
-
 # Zona para fazer imports
-
-import lock_pool as l
+import lock_pool as lpool
 import pickle as p
 from pprint import PrettyPrinter
 
@@ -18,18 +16,15 @@ pp = PrettyPrinter()
 
 class LockSkel:
 
-    def __init__(self, N, K):
-        self.lp = l.lock_pool(N, K)
+    def __init__(self, N, K, Y, T):
+        self.lp = lpool.lock_pool(N, K, Y, T)
 
     def msgreceiver(self, msg, argv):
 
-        pp.pprint(msg)
-        if int(msg[len(msg) - 1]) > (int(argv[2]) - 1):
-            answer = p.dumps([int(msg[0])+1, "None"], -1)
 
         # Commando Lock
-        elif 10 == msg[0]:
-            estado = self.lp.lock(int(msg[2]), int(msg[1]), int(argv[4]))
+        if 10 == msg[0]:
+            estado = self.lp.lock(int(msg[1]), int(msg[2]), int(argv[5]))
             if estado == True:
                 answer = p.dumps([11, "True"], -1)
             elif estado == "Unavailable":
@@ -39,7 +34,7 @@ class LockSkel:
 
         # Comando Release
         elif 20 == msg[0]:
-            estado = self.lp.release(int(msg[2]), int(msg[1]))
+            estado = self.lp.release(int(msg[1]), int(msg[2]))
             if estado == True:
                 print "Resource: ", msg[2], "Released"
                 answer = p.dumps([21, "True"], -1)
@@ -48,7 +43,8 @@ class LockSkel:
 
         # Comando Test
         elif 30 == msg[0]:
-            estado = self.lp.test(int(msg[len(msg) - 1]))
+            estado = self.lp.test(int(msg[1]))
+            print estado
             if estado == True:
                 answer = p.dumps([31, "True"], -1)
             elif estado == "Unavailable":
@@ -57,15 +53,16 @@ class LockSkel:
                 answer = p.dumps([31, "False"], -1)
         # Comando Stats
         elif 40 == msg[0]:
-            if str(self.lp.stat(int(msg[len(msg) - 1]))) > 0:
+            if int(self.lp.stat(int(msg[len(msg) - 1]))) > 0:
                 answer = p.dumps([41, str(self.lp.stat(int(msg[len(msg) - 1])))], -1)
             else:
-                answer = p.dumps([31, "None"], -1)
+                answer = p.dumps([41, "None"], -1)
 
-        # Comando Stats_k
+        # Comando Stats_Y
         elif 50 == msg[0]:
             answer = p.dumps([51, str(self.lp.stat_y())], -1)
 
+        # Comando Stats_N
         elif 60 == msg[0]:
             answer = p.dumps([61, str(self.lp.stat_n())], -1)
 

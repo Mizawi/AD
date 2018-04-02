@@ -176,8 +176,11 @@ class lock_pool:
 
         for resource in self.lock_array:
             if resource[0] == resource_id:
-                self.locks -= 1
-                return resource[1].release(client_id)
+                if resource[1].release(client_id):
+                    self.locks -= 1
+                    return True
+                else:
+                    return False
 
     def test(self, resource_id):
         """

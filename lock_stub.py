@@ -22,7 +22,7 @@ class LockStub:
         return self.netclient.send_receive(self.netclient.client_sock, cmd)
 
     def release(self, msg):
-        cmd = p.dumps([20, msg[0]], -1)
+        cmd = p.dumps([20, msg[0], msg[1]], -1)
 
         return self.netclient.send_receive(self.netclient.client_sock, cmd)
 
