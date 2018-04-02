@@ -19,15 +19,17 @@ Todos os comandos funcionam:
 	STATS-N
 	STATS-Y
 
-NOTAS:
-
-- Cada cliente só pode dar lock a um recurso de cada vez e dar release só ao recurso que deu lock.
+NOTAS e MELHORAMENTOS do Projeto1:
 
 - O Cliente só se liga ao servidor quando envia o comando, depois desliga-se.
 
-- Aguenta varios clientes
+- É verificado o comando introduzido e se não existir numa lista concebida por nós, irá imprimir na terminal que esse comando não existe e para tentar outra vez
+
+- Aguenta varios clientes sem problemas
 
 - O Y já é respeitado e não deixa recursos serem Locked se o Y já estiver no limite
+
+- o STATS-Y já apresenta os valores correctos
 
 - O servidor verifica o K em cada recurso cada vez que surge um pedido, por isso se o recurso já chegou ao K
 só irá desactivar quando for feito outro pedido, o pedido não necessita de ser com esse recurso.
@@ -40,8 +42,7 @@ deixei na mesma o print do objecto para mostrar que são enviados como pedido no
 
 - Se um cliente tentar-se ligar a um servidor que não existe, irá esperar até esse estar disponivel.
 
-- Se o utilizador tentar iniciar um servidor com um PORT_ID já em uso, o servidor irá enviar uma mensagem para tentar
-com outro PORT_ID.
+- Se o utilizador tentar iniciar um servidor com um PORT_ID já em uso, o servidor irá imprimir uma mensagem para tentar com outro PORT_ID.
 
 - Quando testado usei os seguintes valores N = 4, K = 4, Y = 2, T = 100 e 3 Clientes com ID's = 1 , 2 e 3
 
